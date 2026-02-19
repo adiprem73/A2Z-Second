@@ -1,0 +1,90 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+#define ll long long
+#define f(i, a, b) for (int i = a; i < b; i++)
+#define all(x) x.begin(), x.end()
+#define vint vector<int>
+#define vstring vector<string>
+#define vmat vector<vector<int>>
+#define pii pair<int, int>
+#define pll pair<ll, ll>
+#define mii map<int, int>
+#define mll map<ll, ll>
+
+#define vprint(v) for (auto &e : v) cout << e << " "; cout << endl;
+#define mprint(m) for (auto &p : m) cout << p.first << " : " << p.second << endl; cout << endl;
+
+#define FAST_IO ios_base::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL)
+
+const int INF = 1e9;
+const ll MOD = 1e9 + 7;
+
+// -------- Linked List Definition --------
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
+};
+
+// -------- Binary Tree Definition --------
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+};
+
+// Topo Sort: linear ordering of vertices such that there is an edhe between u&v, u appears before v in that ordering
+// only valid in directed acyclic graph
+
+// we use a stack and in dfs calls. when form a element no further dfs calls are possible, we put that number in that stack
+
+bool dfs(int i, vector<bool>& vis, vector<bool>& pathVis, stack<int> & st, vector<vector<int>> & adj){
+    // mark this visited
+    vis[i]= true;
+    pathVis[i]= true;
+    for(auto neighbour : adj[i]){
+        if(!vis[neighbour]){
+            if(dfs(neighbour, vis, pathVis, st, adj)){
+                return true;
+            }
+        }else if(pathVis[neighbour]){
+            return true; // cycle detected since the node is alredy visited and its also visited inthe path vis
+        }
+    }
+    // we do not have ny further dfs calls
+    pathVis[i] = false; // kind of backtreacking
+    st.push(i);
+    return false;
+}
+
+vector<int> topoSort(int V, vector<vector<int>> &adj){
+    vector<bool> vis(V, false);
+    vector<bool> pathVis(V, false);
+    stack<int> st;
+    for(int i=0;i<V;i++){
+        if(!vis[i]){
+            if(dfs(i, vis, pathVis, st, adj)){
+                return {}; // cycle has been detected. no topo array
+            }
+        }
+    }
+    vector<int> ans;
+    while(!st.empty()){
+        ans.push_back(st.top());
+        st.pop();
+    }
+    return ans;
+}
+
+int main() {
+    FAST_IO;
+    return 0;
+}
+
+// by ad73prem
