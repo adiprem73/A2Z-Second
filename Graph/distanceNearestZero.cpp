@@ -73,6 +73,13 @@ vector<vector<int>> updateMatrix(vector<vector<int>> &mat)
     return mat;
 }
 
+// disjoiont set is used mostly in Dynamic Graphs
+// findParent()
+// Union() 
+    // rankd and size
+
+
+
 int main()
 {
     FAST_IO;
