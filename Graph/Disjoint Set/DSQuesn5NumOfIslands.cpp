@@ -107,48 +107,57 @@ public:
     }
 };
 
-vector<vector<string>> accountsMerge(vector<vector<string>> &accounts)
-{
-    // 1st: iterate through all the array elements and account fo rhte overlapping of the email
-    unordered_map<string,int> mapMailNode;
-    int n = accounts.size();
-    DisjointSet ds(n);
-    for(int i=0;i<n;i++){
-        for(int j=1;j<accounts[i].size();j++){
-            string mail = accounts[i][j];
-            if(mapMailNode.find(mail) == mapMailNode.end()){
-                mapMailNode[mail] = i;
-            }else{
-                ds.unionBySize(i, mapMailNode[mail]);
+bool isValid(int adjr, int adjc, int n, int m){
+    return adjr >=0 && adjr<n && adjc>=0 && adjc <m;
+}
+
+vector<int> numOfIslands(int n, int m, vector<vector<int>>& operators){
+    DisjointSet ds(n*m);
+    int vis[n][m];
+    memset(vis, 0, sizeof vis);
+    int cnt =0;
+
+    vector<int> ans;
+
+    for(auto it: operators){
+        int row  = it[0];
+        int col = it[1];
+
+        if(vis[row][col] == 1){
+            ans.push_back(cnt);
+            continue;
+        }
+        vis[row][col] =1;
+        cnt++;
+        // row -1 , col
+        // row , col+1
+        // row+1, col
+        // row, col-1 
+        
+        int dr[]={-1, 0, 1, 0};
+        int dc[]={0,1,0,-1};
+        for(int i=0;i<4;i++){
+            int adjr = row+dr[i];
+            int adjc = col+dc[i];
+            if(isValid(adjr, adjc, n, m)){
+                if(vis[adjr][adjc] == 1){
+                    int nodeNo = row*m + col;
+                    int adjNodeNo = adjr*m + adjc;
+                    if(ds.findUPar(nodeNo) != ds.findUPar(adjNodeNo)){
+                        cnt--;
+                        ds.unionBySize(nodeNo, adjNodeNo);
+                    }
+                }
             }
         }
+        ans.push_back(cnt);
     }
 
-    vector<string> mergedMail[n];
-    for(auto it: mapMailNode){
-        string mail = it.first;
-        int node = ds.findUPar(it.second);
-        mergedMail[node].push_back(mail);
-    }
 
-    vector<vector<string>> ans;
-
-    for(int i=0;i<n;i++){
-        if(mergedMail[i].size() == 0)continue;
-
-        sort(mergedMail[i].begin(), mergedMail[i].end());
-        vector<string> temp;
-        temp.push_back(accounts[i][0]);
-        for(auto it: mergedMail[i]){
-            temp.push_back(it);
-        }
-        ans.push_back(temp);
-    }
     return ans;
 }
 
-int main()
-{
+int main() {
     FAST_IO;
     return 0;
 }

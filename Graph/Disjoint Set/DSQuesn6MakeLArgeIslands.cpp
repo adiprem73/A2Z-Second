@@ -107,44 +107,59 @@ public:
     }
 };
 
-vector<vector<string>> accountsMerge(vector<vector<string>> &accounts)
+bool isValid(int newr, int newc , int n){
+    return newr>=0 && newr<n && newc>=0 && newc<n;
+}
+
+int largestIsland(vector<vector<int>> &grid)
 {
-    // 1st: iterate through all the array elements and account fo rhte overlapping of the email
-    unordered_map<string,int> mapMailNode;
-    int n = accounts.size();
-    DisjointSet ds(n);
-    for(int i=0;i<n;i++){
-        for(int j=1;j<accounts[i].size();j++){
-            string mail = accounts[i][j];
-            if(mapMailNode.find(mail) == mapMailNode.end()){
-                mapMailNode[mail] = i;
-            }else{
-                ds.unionBySize(i, mapMailNode[mail]);
+    int n = grid.size();
+    DisjointSet ds(n*n);
+    for(int row =0;row<n;row++){
+        for(int col=0;col<n;col++){
+            if(grid[row][col] == 0)continue;
+            int dr[]= {-1,0,1,0};
+            int dc[]= {0,-1,0,1};
+            for(int ind =0; ind<4;ind++){
+                int newr = row+dr[ind];
+                int newc = col+dc[ind];
+                if(isValid(newr, newc, n) && grid[newr][newc] == 1){
+                    int nodeNo = row*n + col;
+                    int adjNodeNo = newr*n + newc;
+                    ds.unionBySize(nodeNo, adjNodeNo);
+                }
             }
         }
     }
-
-    vector<string> mergedMail[n];
-    for(auto it: mapMailNode){
-        string mail = it.first;
-        int node = ds.findUPar(it.second);
-        mergedMail[node].push_back(mail);
-    }
-
-    vector<vector<string>> ans;
-
-    for(int i=0;i<n;i++){
-        if(mergedMail[i].size() == 0)continue;
-
-        sort(mergedMail[i].begin(), mergedMail[i].end());
-        vector<string> temp;
-        temp.push_back(accounts[i][0]);
-        for(auto it: mergedMail[i]){
-            temp.push_back(it);
+    int mx =0;
+    for(int row =0;row<n;row++){
+        for(int col=0;col<n;col++){
+            if(grid[row][col] == 1)continue;
+            int dr[] = {-1, 0, 1, 0};
+            int dc[] = {0, -1, 0, 1};
+            set<int> components;
+            for (int ind = 0; ind < 4; ind++)
+            {
+                int newr = row + dr[ind];
+                int newc = col + dc[ind];
+                if(isValid(newr, newc, n)){
+                    if(grid[newr][newc] == 1){
+                        components.insert(ds.findUPar(newr*n + newc));
+                    }
+                }
+            }
+            int sizeTotal =0;
+            for(auto it: components){
+                sizeTotal+= ds.size[it];
+            }
+            mx = max(mx, sizeTotal+1);
         }
-        ans.push_back(temp);
     }
-    return ans;
+
+    for(int cellNo = 0; cellNo<n*n ; cellNo++){
+        mx = max(mx, ds.size[ds.findUPar(cellNo)]);
+    }
+    return mx;
 }
 
 int main()
